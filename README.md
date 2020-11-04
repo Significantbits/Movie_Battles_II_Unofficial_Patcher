@@ -12,3 +12,6 @@ You need to install html5lib and requests
 ```
 python mb_update.py --dir=<path to Jedi Academy Game Data directory>
 ```
+
+## Example Output
+![Output](./doc/mb_uo_patcher.png "Output")
