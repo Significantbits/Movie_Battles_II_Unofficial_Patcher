@@ -2,7 +2,7 @@
 Patch Movie Battles II with Python instead of installing .NET Core
 
 ## Dependencies
-You need to install html5lib and requests
+This script was written for Python 3. You also need to install html5lib and requests packages.
  ```
  pip install html5lib
  pip install requests
