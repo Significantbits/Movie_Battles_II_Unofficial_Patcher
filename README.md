@@ -7,3 +7,8 @@ You need to install html5lib and requests
  pip install html5lib
  pip install requests
  ```
+
+## Usage
+```
+python mb_update.py --dir=<path to Jedi Academy Game Data directory>
+```

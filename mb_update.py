@@ -160,6 +160,7 @@ if __name__ == "__main__":
 	movie_battles_url = "https://community.moviebattles.org/pages/download/#manual"
 	print(title)
 	print(name)
+	usage = "python mb_update.py --dir=<path to Jedi Academy Game Data directory>"
 	req = request.Request(movie_battles_url, headers={
                     'User-Agent' : choice(user_agents),
     })
@@ -180,10 +181,17 @@ if __name__ == "__main__":
 			if game_data_dir[-1] != "/":
 				game_data_dir += "/"
 
+	try:
+		f = open(game_data_dir + "MBII/" + "version.info","r")
+		f.close()
+	except FileNotFoundError:
+		print("This doesn't look like the Game Data directory. Exiting...")
+		print("Usage: ",usage)
+		quit()
+
 
 	# Check game
 	update_game(game_data_dir)
-
 
 	# Check seasonal
 	update_seasonal(game_data_dir,doc)
