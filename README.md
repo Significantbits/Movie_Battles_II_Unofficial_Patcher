@@ -9,8 +9,13 @@ This script was written for Python 3. You also need to install html5lib and requ
  ```
 
 ## Usage
+To update the game, run the following command
 ```
-python mb_update.py --dir=<path to Jedi Academy Game Data directory>
+python mb_update.py --dir=<path to Jedi Academy Game Data directory> 
+```
+To Install the game, run the following command
+```
+python mb_update.py --install --dir=<path to Jedi Academy Game Data directory> 
 ```
 
 ## Example Output

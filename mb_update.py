@@ -110,7 +110,7 @@ def update_seasonal(game_data_dir,doc):
 		sf.close()
 		os.system("rm -rf temp_patch")
 
-def update_game(game_data_dir):
+def update_game(game_data_dir,version):
 	# Check game
 	f = open(game_data_dir + "MBII/" + "version.info","r")
 	local_version = f.readline()
@@ -153,6 +153,82 @@ def update_game(game_data_dir):
 		os.system("rm -rf temp_patch")
 
 
+def update(game_data_dir,version,doc):
+	try:
+		f = open(game_data_dir + "MBII/" + "version.info","r")
+		f.close()
+	except FileNotFoundError:
+		print("This doesn't look like the Game Data directory. Exiting...")
+		print("Usage:\n" + usage)
+		quit()
+
+
+	# Check game
+	update_game(game_data_dir,version)
+
+	# Check seasonal
+	update_seasonal(game_data_dir,doc)
+	print("Movie Battles II is up to date! Have fun!")
+
+def install_mb(game_data_dir,doc):
+	# Install Open JK
+	try:
+		f = open(game_data_dir + "version.inf","r")
+		f.close()
+	except FileNotFoundError:
+		print("This doesn't look like the Game Data directory. Exiting...")
+		print("Usage:\n" + usage)
+		quit()
+
+	os.system("mkdir temp_openjk")
+	print("Downloading OpenJK...")
+	response = requests.get("https://builds.openjk.org/openjk-2018-02-26-e3f22070-linux.tar.gz")
+	with open("./temp_openjk/openjk-2018-02-26-e3f22070-linux.tar.gz","wb") as f:
+		f.write(response.content)
+	print("Unpacking OpenJK...")
+	os.system("cd temp_openjk ;  tar -xvf openjk-2018-02-26-e3f22070-linux.tar.gz ; cd ../")
+	print("Installing OpenJK...")
+	open_jk_files = os.listdir("./temp_openjk/install/JediAcademy/")
+	for jk_f in open_jk_files:
+		if jk_f == "openjk-2018-02-26-e3f22070-linux.tar.gz":
+			continue
+		if jk_f == "base":
+			base_files = os.listdir("./temp_openjk/install/JediAcademy/base")
+			for b_f in base_files:
+				os.system("cd ./temp_openjk/install/JediAcademy/base ; mv " + b_f.replace(" ","\ ") + " " + game_data_dir.replace(" ","\ ") + "base/" + " ; cd ../../../../")
+		else:
+			os.system("cd ./temp_openjk/install/JediAcademy/ ; mv " + jk_f.replace(" ","\ ") + " " + game_data_dir.replace(" ","\ ") + " ; cd ../../../")
+
+	# Install Movie Battles
+	temp = doc.xpath('//a/@href')
+	links = []
+	for t in temp:
+		if "drive.google" in t:
+			links += [t]
+
+	print(links)
+	update_link = links[0]
+	file_id = update_link.split("/view")
+	update_link = file_id[0]
+	file_id = update_link.split("/")[-1]
+	update_link = "https://drive.google.com/u/0/uc?id=" + file_id + "&export=download"
+
+	print("Downloading Movie Battles 2...")
+	os.system("mkdir temp_patch")
+	download_file_from_google_drive(update_link,file_id, "./temp_patch/patch.zip")
+	print("Unpacking patch...")
+	os.system("cd temp_patch ; unzip patch.zip ; cd ../")
+	os.system("cd temp_patch ; rm *.bat ; cd ../")
+	os.system("cd temp_patch ; rm *.dll ; cd ../")
+	os.system("cd temp_patch ; rm *.exe ; cd ../")
+	mb_files = os.listdir("./temp_patch")
+	for mb_f in mb_files:
+		if mb_f == "patch.zip":
+			continue
+		os.system("cd ./temp_patch ; mv " + mb_f.replace(" ","\ ") + " " + game_data_dir.replace(" ","\ ") + " ; cd ../")	
+
+	os.system("rm -rf temp_patch ; rm -rf temp_openjk")
+
 
 
 if __name__ == "__main__":
@@ -160,7 +236,8 @@ if __name__ == "__main__":
 	movie_battles_url = "https://community.moviebattles.org/pages/download/#manual"
 	print(title)
 	print(name)
-	usage = "python mb_update.py --dir=<path to Jedi Academy Game Data directory>"
+	install = False
+	usage = "To update the game: python mb_update.py --dir=<path to Jedi Academy Game Data directory> \nTo install the game: python mb_update.py --install --dir=<path to Jedi Academy Game Data directory>"
 	req = request.Request(movie_battles_url, headers={
                     'User-Agent' : choice(user_agents),
     })
@@ -180,19 +257,11 @@ if __name__ == "__main__":
 			game_data_dir = arg.split("=")[-1]
 			if game_data_dir[-1] != "/":
 				game_data_dir += "/"
+		if "--install" in arg:
+			install = True
 
-	try:
-		f = open(game_data_dir + "MBII/" + "version.info","r")
-		f.close()
-	except FileNotFoundError:
-		print("This doesn't look like the Game Data directory. Exiting...")
-		print("Usage: ",usage)
-		quit()
+	if(install):
+		install_mb(game_data_dir,doc)
+	else:
+		update(game_data_dir,version,doc)
 
-
-	# Check game
-	update_game(game_data_dir)
-
-	# Check seasonal
-	update_seasonal(game_data_dir,doc)
-	print("Movie Battles II is up to date! Have fun!")
